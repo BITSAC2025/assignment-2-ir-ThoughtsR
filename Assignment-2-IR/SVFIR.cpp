@@ -29,29 +29,28 @@ int main(int argc, char** argv)
 
     moduleNameVec = OptionBase::parseOptions(arg_num, arg_value, "SVF IR", "[options] <input-bitcode...>");
 
-    LLVMModuleSet::getLLVMModuleSet()->buildSVFModule(moduleNameVec);
+    LLVMModuleSet::buildSVFModule(moduleNameVec);
 
-    // Instantiate an SVFIR builder
     SVFIRBuilder builder;
     cout << "Generating SVFIR(PAG), call graph and ICFG ..." << endl;
 
-    // TODO: here, generate SVFIR(PAG), call graph and ICFG, and dump them to files
+    // TODO: here, generate SVFIR(PAG), call graph and ICFG to files
     //@{
-    SVFModule *svfModule = LLVMModuleSet::getLLVMModuleSet()->getSVFModule();
+    SVFIR *pag = builder.build();                               // SVF 3.2: 无参 build()
 
-    // 1) 生成 SVFIR（又叫 PAG）
-    SVFIR *pag = builder.build(svfModule);
-    // 导出到 svfir.dot
-    pag->dump("svfir");
+    // 1) SVFIR(PAG)
+    pag->dump("Assignment-2-IR/svfir");                         // -> svfir.dot
 
-    // 2) 生成/获取调用图并导出
-    CallGraph *cg = pag->getCallGraph();
-    cg->dump("callgraph");  // -> callgraph.dot
+    // 2) CallGraph（返回 const*，dump 非 const → const_cast）
+    const CallGraph *cg_c = pag->getCallGraph();
+    const_cast<CallGraph*>(cg_c)->dump("Assignment-2-IR/callgraph");    // -> callgraph.dot
 
-    // 3) 生成/获取 ICFG 并导出
+    // 3) ICFG
     ICFG *icfg = pag->getICFG();
-    icfg->dump("icfg");     // -> icfg.dot
+    icfg->dump("Assignment-2-IR/icfg", /*simple=*/false);       // -> icfg.dot
     //@}
 
-    return 0;
+
+    LLVMModuleSet::releaseLLVMModuleSet();
+	return 0;
 }
