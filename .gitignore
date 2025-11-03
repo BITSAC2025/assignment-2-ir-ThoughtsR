@@ -1,8 +1,3 @@
 cmake-build-debug/
 build/
 .idea/
-
-compile_commands.json
-.cache/*
-*.ll
-*.dot
