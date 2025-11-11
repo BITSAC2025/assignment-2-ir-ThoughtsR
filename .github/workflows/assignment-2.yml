@@ -134,3 +134,31 @@ jobs:
           path: |
             $ASSIGNMENT_DIR/test-results/
           retention-days: 365
+
+      - name: Push Grading Summary to Student Repo
+        run: |
+          RESULTS_DIR="$ASSIGNMENT_DIR/Assignment-2-IR/test-results"
+          SUMMARY_FILE="grading_summary.txt" # 目标文件名
+          
+          # 1. 复制 summary.txt 到仓库根目录并重命名
+          cp "$RESULTS_DIR/summary.txt" "$ASSIGNMENT_DIR/$SUMMARY_FILE"
+          
+          # 2. 配置 Git 用户信息 (使用 GitHub Actions 机器人身份)
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # 3. 添加文件
+          git add "$SUMMARY_FILE"
+          
+          # 4. 检查是否有需要提交的更改
+          if ! git diff --cached --exit-code --quiet; then
+            # 5. 提交更改
+            git commit -m "AutoGrader: Add grading summary for assignment"
+            
+            # 6. 推送至当前分支 (使用 GITHUB_TOKEN)
+            # 注意: 使用 --force-with-lease 避免潜在的冲突问题
+            git push
+            echo "Successfully pushed $SUMMARY_FILE to the student repository."
+          else
+            echo "No changes in summary file detected. Skipping commit."
+          fi
