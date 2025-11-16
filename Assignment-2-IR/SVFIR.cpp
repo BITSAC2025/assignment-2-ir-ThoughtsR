@@ -36,21 +36,15 @@ int main(int argc, char** argv)
 
     // TODO: here, generate SVFIR(PAG), call graph and ICFG to files
     //@{
-    SVFIR *pag = builder.build();                    // SVF 3.2: 无参 build()
+    auto pag = builder.build();
+    pag->dump();
 
-    // 1) SVFIR (PAG)
-    pag->dump("svfir");                              // -> svfir.dot（写到当前目录）
+    auto cg = pag->getCallGraph();
+    cg->dump();
 
-    // 2) CallGraph（返回 const*，dump 非 const → const_cast）
-    const CallGraph *cg_c = pag->getCallGraph();
-    const_cast<CallGraph*>(cg_c)->dump("callgraph"); // -> callgraph.dot
-
-    // 3) ICFG
-    ICFG *icfg = pag->getICFG();
-    icfg->dump("icfg", /*simple=*/false);            // -> icfg.dot
+    auto icfg = pag->getICFG();
+    icfg->dump();
     //@}
-
-
 
     LLVMModuleSet::releaseLLVMModuleSet();
 	return 0;
